@@ -294,7 +294,96 @@
         svg { width: 24px; height: 24px; fill: currentColor; }
         .social-icon svg { width: 24px; height: 24px; }
         .info-icon-sq svg { width: 20px; height: 20px; }
+        /* Модальне вікно презентації */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000000;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Кнопка закриття поверх слайдів */
+.modal-close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: none;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Налаштування Swiper слайдера */
+.swiper {
+    width: 100%;
+    height: 100%;
+}
+
+.swiper-slide {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    background: #000;
+}
+
+.swiper-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Зберігає пропорції слайда без обрізання */
+}
+
+/* Кастомізація індикаторів (точок) внизу */
+.swiper-pagination-bullet {
+    background: #ffffff !important;
+    opacity: 0.4;
+}
+.swiper-pagination-bullet-active {
+    background: var(--primary) !important; /* Твій карамельний колір */
+    opacity: 1;
+}
+
+/* Кнопка на фінальному слайді */
+.final-slide-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+.final-cta-btn {
+    position: absolute;
+    bottom: 64px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    max-width: 320px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    z-index: 10;
+}
     </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 </head>
 <body>
 
@@ -325,9 +414,10 @@
                 <svg viewBox="0 0 24 24" style="width: 20px; height: 20px;"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                 Зберегти контакт
             </button>
-            <button class="btn btn-secondary">
-                <svg viewBox="0 0 24 24" style="width: 20px; height: 20px;"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
-                Детальніше
+            <button id="openPresentationBtn" class="btn btn-secondary">
+    <svg viewBox="0 0 24 24" style="width: 20px; height: 20px;"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+    Детальніше
+</button>
             </button>
         </div>
 
@@ -385,13 +475,17 @@
         </div>
     </div>
 
-    <script>
-        // 1. Логіка для генерації VCF файлу
-        document.getElementById('saveContactBtn').addEventListener('click', function() {
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        // --- 1. Логіка генерації та завантаження vCard ---
+        function downloadVCard() {
             const vCardData = `BEGIN:VCARD
 VERSION:3.0
 N:Рубан;Максим;;;
-FN:Олександр Петренко
+FN:Максим Рубан
 ORG:Company Name
 TITLE:Розробник програмного забезпечення
 TEL;TYPE=WORK,VOICE:+380671234567
@@ -409,28 +503,91 @@ END:VCARD`;
             a.click();
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
-        });
+        }
 
-        // 2. Логіка для відображення кнопок Wallet залежно від ОС
-        document.addEventListener("DOMContentLoaded", function() {
-            function getMobileOperatingSystem() {
-                var userAgent = navigator.userAgent || navigator.vendor || window.opera;
-                if (/android/i.test(userAgent)) return "Android";
-                if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) return "iOS";
-                return "unknown";
-            }
+        // Прив'язуємо функцію до ОБОХ кнопок
+        document.getElementById('saveContactBtn').addEventListener('click', downloadVCard);
+        document.getElementById('saveContactFromSlideBtn').addEventListener('click', downloadVCard);
 
-            var os = getMobileOperatingSystem();
-            var walletContainer = document.getElementById('wallet-container');
+
+        // --- 2. Логіка відображення кнопок Wallet ---
+        function getMobileOperatingSystem() {
+            var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            if (/android/i.test(userAgent)) return "Android";
+            if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) return "iOS";
+            return "unknown";
+        }
+
+        var os = getMobileOperatingSystem();
+        var walletContainer = document.getElementById('wallet-container');
+        
+        if (os === "iOS") {
+            walletContainer.style.display = "block";
+            document.getElementById('apple-wallet-btn').style.display = "inline-block";
+        } else if (os === "Android") {
+            walletContainer.style.display = "block";
+            document.getElementById('google-wallet-btn').style.display = "inline-block";
+        }
+
+
+        // --- 3. Логіка модального вікна та Swiper ---
+        const modal = document.getElementById('presentationModal');
+        const openBtn = document.getElementById('openPresentationBtn');
+        const closeBtn = document.getElementById('closePresentationBtn');
+        let swiperInstance = null;
+
+        // Відкриття модального вікна
+        openBtn.addEventListener('click', function() {
+            modal.classList.add('active');
             
-            if (os === "iOS") {
-                walletContainer.style.display = "block";
-                document.getElementById('apple-wallet-btn').style.display = "inline-block";
-            } else if (os === "Android") {
-                walletContainer.style.display = "block";
-                document.getElementById('google-wallet-btn').style.display = "inline-block";
+            // Ініціалізуємо Swiper тільки при відкритті вікна, щоб уникнути багів з розмірами
+            if (!swiperInstance) {
+                swiperInstance = new Swiper(".mySwiper", {
+                    pagination: {
+                        el: ".swiper-pagination",
+                        clickable: true,
+                    },
+                    grabCursor: true, // Змінює курсор для десктопу
+                });
             }
         });
-    </script>
+
+        // Закриття модального вікна
+        closeBtn.addEventListener('click', function() {
+            modal.classList.remove('active');
+            // За бажанням: повертати слайдер на перший екран при закритті
+            if (swiperInstance) {
+                setTimeout(() => swiperInstance.slideTo(0, 0), 300);
+            }
+        });
+    });
+</script>
+    <div id="presentationModal" class="modal-overlay">
+    
+    <button id="closePresentationBtn" class="modal-close-btn">
+        <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: currentColor;"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+    </button>
+
+    <div class="swiper mySwiper">
+        <div class="swiper-wrapper">
+            <div class="swiper-slide">
+                <img src="assets/slides/slide-1.webp" alt="Слайд 1">
+            </div>
+            <div class="swiper-slide">
+                <img src="assets/slides/slide-2.webp" alt="Слайд 2">
+            </div>
+            <div class="swiper-slide">
+                <div class="final-slide-container">
+                    <img src="assets/slides/slide-3.webp" alt="Слайд 3">
+                    <button id="saveContactFromSlideBtn" class="btn btn-primary final-cta-btn">
+                        <svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: currentColor;"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        Зберегти контакт
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="swiper-pagination"></div>
+    </div>
+</div>
 </body>
 </html>
