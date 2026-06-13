@@ -385,82 +385,62 @@
 
         /* --- AI Glow Animation Styles --- */
 
-/* 1. Загальний стиль контейнера контенту всередині кнопки */
-.btn-content {
+/* --- ВИПРАВЛЕНА AI Glow Animation --- */
+
+/* Зовнішній контейнер кнопки Детальніше (сама рамка) */
+.btn-ai-details {
+    position: relative;
+    padding: 2px !important; /* Товщина анімованої рамки */
+    overflow: hidden;
+    border: none;
+    background-color: var(--border);
+}
+
+/* Анімований градієнт (крутиться на задньому фоні) */
+.btn-ai-details::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 150%; 
+    height: 400%; /* Витягуємо, щоб покривало прямокутну форму */
+    background-image: conic-gradient(
+        transparent,
+        #8338ec, 
+        #ff006e, 
+        #3a86ff, 
+        transparent 30%
+    );
+    animation: rotate-ai-glow 3s linear infinite;
+    z-index: 0;
+}
+
+/* Внутрішній контент (біла частина кнопки, яка перекриває центр) */
+.btn-ai-details .btn-content {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
     width: 100%;
     height: 100%;
+    background-color: var(--surface); /* Білий фон кнопки */
+    border-radius: calc(var(--radius-md) - 2px); /* Радіус трохи менший за зовнішній */
+    padding: 14px; /* Робимо висоту ідентичною до першої кнопки (14px + 2px рамка = 16px) */
     position: relative;
-    z-index: 2; /* Поверх анімованого кордону */
-    background-color: var(--surface); /* Фон контенту */
-    border-radius: calc(var(--radius-md) - 1px); /* Трохи менший радіус, щоб було видно кордон */
-    transition: background-color 0.2s ease;
-}
-
-/* 2. Стиль кнопки Детальніше (AI анімація) */
-.btn-ai-details {
-    position: relative;
-    padding: 1px; /* Товщина нашого анімованого кордону */
-    overflow: hidden; /* Щоб обрізати обертовий градієнт */
-    background-color: var(--border); /* Колір кордону в статичному стані */
-    border: none; /* Відключаємо стандартний кордон */
-    transition: box-shadow 0.3s ease;
-}
-
-.btn-ai-details:hover,
-.btn-ai-details:active {
-    box-shadow: 0 8px 24px rgba(131, 56, 236, 0.25); /* Глибока тінь при взаємодії */
-}
-
-/* Налаштування іконки та кольору тексту для кнопки Детальніше */
-.btn-ai-details .btn-content {
+    z-index: 1; /* Поверх градієнта */
     color: var(--text-main);
 }
-.btn-ai-details .btn-content svg {
-    color: var(--text-muted);
-}
 
-/* Псевдоелемент ::before - це сам обертовий градієнт */
-.btn-ai-details::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(0deg); /* Початкове положення */
-    width: 200%; /* Набагато більший за кнопку, щоб перекривати кути при обертанні */
-    height: 200%;
-    
-    /* "AI" градієнт: фіолетовий -> рожевий -> блакитний -> фіолетовий */
-    background-image: conic-gradient(
-        transparent,
-        #8338ec, /* Основний AI фіолетовий */
-        #ff006e, /* Рожевий акцент */
-        #3a86ff, /* Блакитний акцент */
-        transparent 30% /* Робимо "хвіст" градієнта */
-    );
-    
-    /* Анімація обертання */
-    animation: rotate-ai-glow 4s linear infinite;
-    z-index: 1; /* Між фоном кнопки та контентом */
-    opacity: 0.8; /* Трохи приглушуємо яскравість */
-}
-
-/* Анімація обертання градієнта */
-@keyframes rotate-ai-glow {
-    0% {
-        transform: translate(-50%, -50%) rotate(0deg);
-    }
-    100% {
-        transform: translate(-50%, -50%) rotate(360deg);
-    }
-}
-
-/* Трохи оновимо контент кнопок при натисканні */
-.btn:active .btn-content {
+/* Ефект при натисканні */
+.btn-ai-details:active .btn-content {
     background-color: var(--surface-hover);
+}
+
+/* Сама анімація обертання */
+@keyframes rotate-ai-glow {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
     </style>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
@@ -491,10 +471,8 @@
 
         <div class="actions">
     <button id="saveContactBtn" class="btn btn-primary">
-        <span class="btn-content">
-            <svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: currentColor;"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            Зберегти контакт
-        </span>
+        <svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: currentColor;"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        Зберегти контакт
     </button>
     
     <button id="openPresentationBtn" class="btn btn-ai-details">
