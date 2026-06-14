@@ -480,14 +480,14 @@
         </span>
     </button>
 </div>
-        <div id="wallet-container" class="wallet-container">
+        <!-- <div id="wallet-container" class="wallet-container">
             <a id="apple-wallet-btn" class="wallet-btn" href="шлях_до_твого_файлу.pkpass">
                 <img src="https://developer.apple.com/wallet/add-to-apple-wallet-logo.png" alt="Add to Apple Wallet">
             </a>
             <a id="google-wallet-btn" class="wallet-btn" href="ТВОЄ_ПОСИЛАННЯ_З_GOOGLE_CONSOLE">
                 <img src="https://developers.google.com/wallet/images/en/wallet-button.png" alt="Add to Google Wallet">
             </a>
-        </div>
+        </div> -->
 
         <div class="divider">Зв'язатися</div>
 
@@ -570,23 +570,23 @@ END:VCARD`;
 
 
         // --- 2. Логіка відображення кнопок Wallet ---
-        function getMobileOperatingSystem() {
-            var userAgent = navigator.userAgent || navigator.vendor || window.opera;
-            if (/android/i.test(userAgent)) return "Android";
-            if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) return "iOS";
-            return "unknown";
-        }
+        // function getMobileOperatingSystem() {
+        //     var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        //     if (/android/i.test(userAgent)) return "Android";
+        //     if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) return "iOS";
+        //     return "unknown";
+        // }
 
-        var os = getMobileOperatingSystem();
-        var walletContainer = document.getElementById('wallet-container');
+        // var os = getMobileOperatingSystem();
+        // var walletContainer = document.getElementById('wallet-container');
         
-        if (os === "iOS") {
-            walletContainer.style.display = "block";
-            document.getElementById('apple-wallet-btn').style.display = "inline-block";
-        } else if (os === "Android") {
-            walletContainer.style.display = "block";
-            document.getElementById('google-wallet-btn').style.display = "inline-block";
-        }
+        // if (os === "iOS") {
+        //     walletContainer.style.display = "block";
+        //     document.getElementById('apple-wallet-btn').style.display = "inline-block";
+        // } else if (os === "Android") {
+        //     walletContainer.style.display = "block";
+        //     document.getElementById('google-wallet-btn').style.display = "inline-block";
+        // }
 
 
         // --- 3. Логіка модального вікна та Swiper ---
